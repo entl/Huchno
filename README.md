@@ -1,12 +1,12 @@
 # · HUCHNO ·
 
 <div>
-<img src="https://img.shields.io/badge/FastAPI-black?style=for-the-badge&logo=fastapi" alt="fastapi-logo" height="20" /> 
-<img src="https://img.shields.io/badge/react-black.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="react-logo" height="20" />
-<img src="https://img.shields.io/badge/redis-black.svg?style=for-the-badge&logo=redis&logoColor=white" alt="redis" height="20" />
-<img src="https://img.shields.io/badge/typescript-black.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="typescript" height="20" />
-<img src="https://img.shields.io/badge/postgres-black?style=for-the-badge&logo=postgresql&logoColor=white" alt="react-logo" height="20" />
-<img src="https://img.shields.io/badge/MongoDB-black.svg?style=for-the-badge&logo=mongodb&logoColor=whitehttps://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white" alt="mongo" height="20" />
+<img src="https://img.shields.io/badge/FastAPI-black?style=for-the-badge&logo=fastapi" alt="fastapi-logo" height="30" /> 
+<img src="https://img.shields.io/badge/react-black.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="react-logo" height="30" />
+<img src="https://img.shields.io/badge/redis-black.svg?style=for-the-badge&logo=redis&logoColor=white" alt="redis" height="30" />
+<img src="https://img.shields.io/badge/typescript-black.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="typescript" height="30" />
+<img src="https://img.shields.io/badge/postgres-black?style=for-the-badge&logo=postgresql&logoColor=white" alt="react-logo" height="30" />
+<img src="https://img.shields.io/badge/MongoDB-black.svg?style=for-the-badge&logo=mongodb&logoColor=whitehttps://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white" alt="mongo" height="30" />
 </div>
 
 ---
