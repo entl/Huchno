@@ -11,9 +11,6 @@
 
 ---
 
-
-# Huchno
-
 Huchno is a groundbreaking mobile* app that allows you to track your friends' locations and discover the music they're currently listening to. It's the ultimate way to connect with your friends, understand their music tastes, and share unforgettable experiences. With real-time insights into their preferences and moods, Huchno creates a unique opportunity to bond through music while exploring the world.
 
 .* Currently, creating API for the project. Open to collaborating on frontend development.
