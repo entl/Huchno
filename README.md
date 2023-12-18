@@ -6,7 +6,8 @@
 <img src="https://img.shields.io/badge/redis-black.svg?style=for-the-badge&logo=redis&logoColor=white" alt="redis" height="30" />
 <img src="https://img.shields.io/badge/typescript-black.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="typescript" height="30" />
 <img src="https://img.shields.io/badge/postgres-black?style=for-the-badge&logo=postgresql&logoColor=white" alt="react-logo" height="30" />
-<img src="https://img.shields.io/badge/MongoDB-black.svg?style=for-the-badge&logo=mongodb&logoColor=whitehttps://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white" alt="mongo" height="30" />
+<img src="https://img.shields.io/badge/MongoDB-black?style=for-the-badge&logo=mongodb&logoColor=white" alt="mongo" height="30" />
+<img src="https://img.shields.io/badge/docker-black.svg?style=for-the-badge&logo=docker&logoColor=white" alt="docker" height="30" />
 </div>
 
 ---
