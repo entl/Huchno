@@ -3,7 +3,7 @@ from typing import Optional
 
 from loguru import logger
 from pydantic import UUID4
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,7 +25,7 @@ class UserRepository:
         return users
 
     @classmethod
-    async def find_by_id(cls, session: AsyncSession, user_id: UUID4) -> Optional[models.User]:
+    async def find_by_id(cls, session: AsyncSession, user_id: str) -> Optional[models.User]:
         """
         Retrieve a user by their UUID.
 
@@ -71,6 +71,7 @@ class UserRepository:
 
         Args:
             email (str): The email of the user.
+            session (AsyncSession): The database session.
 
         Returns:
             Optional[models.User]: The user with the specified email.
@@ -111,13 +112,14 @@ class UserRepository:
             raise exceptions.base.DatabaseException()
 
     @classmethod
-    async def update(cls, session: AsyncSession, user: models.User):
+    async def update(cls, session: AsyncSession, new_values: dict, user_id: str) -> models.User:
         """
         Update the verification status of a user to True.
 
         Args:
             session (AsyncSession): The database session.
-            user (models.User): The user whose verification status needs to be updated.
+            new_values (dict): The new values to update the user with.
+            user_id (str): The unique identifier of the user to update.
 
         Returns:
             models.User: The updated user object with the verification status set to True.
@@ -126,9 +128,15 @@ class UserRepository:
             HTTPException: If there is an error updating the verification status in the database.
         """
         try:
-            session.add(user)
+            query = (
+                update(models.User)
+                .where(user_id == models.User.id_)
+                .values(**new_values)
+                .returning(models.User)
+            )
+            result = await session.execute(query)
             await session.commit()
-            return user
+            return result.scalars().first()
         except (SQLAlchemyError, Exception) as e:
             if isinstance(e, SQLAlchemyError):
                 msg = "Database Exc: Cannot insert data into table"
@@ -141,7 +149,7 @@ class UserRepository:
             raise exceptions.base.DatabaseException()
 
     @classmethod
-    async def delete(cls, session: AsyncSession, user_id: UUID4):
+    async def delete(cls, session: AsyncSession, user_id: str):
         """
         Delete a user from the database.
 

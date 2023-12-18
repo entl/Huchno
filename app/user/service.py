@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import UUID4
 
 from app.user.repository import UserRepository
-from app.user.schemas import UserOut, UserCreate
+from app.user.schemas import UserOut, UserCreate, UserUpdate
 from app.user.models import User
 from core import exceptions
 
@@ -50,11 +50,19 @@ class UserService:
             user = await self.user_repository.add(session=session, user=user)
             return UserOut.model_validate(user)
 
-    async def update_user(self):
-        raise NotImplementedError
+    async def update_user(self, user: UserUpdate) -> UserOut:
+        if not await self.get_user_by_id(user.id_):
+            raise exceptions.user.UserNotFoundException()
+        async with async_session_factory() as session:
+            new_values = user.model_dump(exclude_none=True, exclude_unset=True)
+            user_model = await self.user_repository.update(session=session, new_values=new_values, user_id=user.id_)
+            return UserOut.model_validate(user_model)
 
-    async def delete_user(self):
-        raise NotImplementedError
+    async def delete_user(self, user_id: str) -> None:
+        if not await self.get_user_by_id(user_id):
+            raise exceptions.user.UserNotFoundException()
+        async with async_session_factory() as session:
+            await self.user_repository.delete(session=session, user_id=user_id)
 
     async def login(self):
         raise NotImplementedError
