@@ -58,8 +58,11 @@ class UserService:
             user_model = await self.user_repository.update(session=session, new_values=new_values, user_id=user.id_)
             return UserOut.model_validate(user_model)
 
-    async def delete_user(self):
-        raise NotImplementedError
+    async def delete_user(self, user_id: str) -> None:
+        if not await self.get_user_by_id(user_id):
+            raise exceptions.user.UserNotFoundException()
+        async with async_session_factory() as session:
+            await self.user_repository.delete(session=session, user_id=user_id)
 
     async def login(self):
         raise NotImplementedError
