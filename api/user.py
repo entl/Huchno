@@ -44,6 +44,9 @@ async def get_user_by_id(user_id: str, user_service: Annotated[UserService, Depe
         UserOut: The user with the specified ID.
     """
     user = await user_service.get_user_by_id(user_id=user_id)
+    if not user:
+        raise exceptions.user.UserNotFoundException()
+
     return user
 
 
