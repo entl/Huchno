@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import UUID4
 
 from app.user.repository import UserRepository
@@ -18,25 +20,25 @@ class UserService:
             users = await self.user_repository.find_all(session=session)
             return [UserOut.model_validate(user) for user in users]
 
-    async def get_user_by_id(self, user_id: UUID4) -> UserOut:
+    async def get_user_by_id(self, user_id: UUID4) -> Optional[UserOut]:
         async with async_session_factory() as session:
             user = await self.user_repository.find_by_id(session=session, user_id=user_id)
-            return UserOut.model_validate(user)
+            return UserOut.model_validate(user) if user else None
 
-    async def get_user_by_username(self, username: str) -> UserOut:
+    async def get_user_by_username(self, username: str) -> Optional[UserOut]:
         async with async_session_factory() as session:
             user = await self.user_repository.find_by_username(session=session, username=username)
-            return UserOut.model_validate(user)
+            return UserOut.model_validate(user) if user else None
 
-    async def get_user_by_email(self, email: str) -> UserOut:
+    async def get_user_by_email(self, email: str) -> Optional[UserOut]:
         async with async_session_factory() as session:
             user = await self.user_repository.find_by_email(session=session, email=email)
-            return UserOut.model_validate(user)
+            return UserOut.model_validate(user) if user else None
 
     async def create_user(self, user: UserCreate) -> UserOut:
-        if self.get_user_by_username(user.username):
+        if await self.get_user_by_username(user.username):
             raise exceptions.user.DuplicateEmailOrNicknameException()
-        if self.get_user_by_email(user.email):
+        if await self.get_user_by_email(user.email):
             raise exceptions.user.DuplicateEmailOrNicknameException()
 
         # hash the password
