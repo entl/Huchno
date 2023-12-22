@@ -55,7 +55,7 @@ class IsAdmin(BasePermission):
 class PermissionDependency(SecurityBase):
     def __init__(self, permissions: List[Type[BasePermission]], all_required: bool = True):
         self.permissions = permissions
-        # self.model: APIKey = APIKey(**{"in": APIKeyIn.header}, name="Authorization")
+        self.model: APIKey = APIKey(**{"in": APIKeyIn.header}, name="Authorization")
         self.scheme_name = self.__class__.__name__
         self.all_required = all_required
 
