@@ -18,6 +18,7 @@ class JwtService:
             raise DecodeTokenException
 
         return RefreshTokenBase(
-            token=TokenHelper.encode(payload={"user_id": token.get("user_id")}),
+            access_token=TokenHelper.encode(payload={"user_id": token.get("user_id")}),
             refresh_token=TokenHelper.encode(payload={"sub": "refresh"}),
+            token_type="bearer",
         )
