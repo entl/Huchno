@@ -14,7 +14,7 @@ from app.user.models import Base
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("sqlalchemy.url", f"postgresql://{settings.pg_database_username}:{settings.pg_database_password}@{settings.pg_database_hostname}/{settings.pg_database_name}")
+config.set_main_option("sqlalchemy.url", f"postgresql://{settings.pg_database_username}:{settings.pg_database_password}@{settings.pg_database_hostname}:{settings.pg_database_port}/{settings.pg_database_name}")
 
 
 # Interpret the config file for Python logging.

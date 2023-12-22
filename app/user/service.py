@@ -3,12 +3,13 @@ from typing import Optional
 from pydantic import UUID4
 
 from app.user.repository import UserRepository
-from app.user.schemas import UserOut, UserCreate, UserUpdate
+from app.user.schemas import UserOut, UserCreate, UserUpdate, LoginResponse
 from app.user.models import User
 from core import exceptions
 
 from core.db.session import async_session_factory
 from core.utils import password_helper
+from core.utils.token_helper import TokenHelper
 
 
 class UserService:
@@ -64,8 +65,28 @@ class UserService:
         async with async_session_factory() as session:
             await self.user_repository.delete(session=session, user_id=user_id)
 
-    async def login(self):
-        raise NotImplementedError
+    async def login(self, email: str, password: str) -> LoginResponse:
+        async with async_session_factory() as session:
+            user = await self.user_repository.find_by_email(session=session, email=email)
+        if not user:
+            raise exceptions.user.UserNotFoundException()
+        if not password_helper.verify(password, user.password):
+            raise exceptions.user.PasswordDoesNotMatchException()
+
+        response = LoginResponse(
+            access_token=TokenHelper.encode(payload={"user_id": str(user.id_)}),
+            refresh_token=TokenHelper.encode(payload={"sub": "refresh"}),
+            token_type="bearer"
+        )
+
+        return response
+
+    async def is_admin(self, user_id: str) -> bool:
+        async with async_session_factory() as session:
+            user = await self.user_repository.find_by_id(session=session, user_id=user_id)
+        if not user:
+            raise exceptions.user.UserNotFoundException()
+        return user.is_admin
 
     async def logout(self):
         raise NotImplementedError

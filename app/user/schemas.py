@@ -1,5 +1,5 @@
 from datetime import datetime, date, timedelta
-from typing import Optional, Annotated, Required
+from typing import Optional, Annotated
 
 from pydantic import EmailStr, Field, field_validator, BaseModel, UUID4
 
@@ -65,6 +65,7 @@ class UserOut(UserBase):
     """
     id_: Annotated[UUID4, Field(..., description="The unique identifier of the user")]
     registration_date: Annotated[date, Field(..., description="The registration datetime of the user")]
+    email: Annotated[EmailStr, Field(..., description="The email of the user")]
     # profile_image: ProfileImageOut
     verified: Annotated[bool, Field(..., description="The verification status of the user")]
 
@@ -94,3 +95,9 @@ class UserUpdate(BaseModel):
         if value < min_date or value > max_date:
             raise exceptions.user.UserAgeInvalid(f'birthdate must be between {min_date} and {max_date}')
         return value
+
+
+class LoginResponse(BaseModel):
+    access_token: str = Field(..., description="Token")
+    refresh_token: str = Field(..., description="Refresh token")
+    token_type: str = Field(..., description="Type of token")

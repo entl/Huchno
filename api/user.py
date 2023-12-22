@@ -1,19 +1,23 @@
 from typing import Annotated
 
-from loguru import logger
-from fastapi import APIRouter, Depends, status, HTTPException
-from fastapi.security.oauth2 import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, status
 from pydantic import UUID4
 
 from app.user.schemas import UserCreate, UserOut, UserUpdate
 from app.user.service import UserService
 
 from core import exceptions
+from core.fastapi.dependencies.permission import PermissionDependency, IsAuthenticated, IsAdmin
 
 users_router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@users_router.get("/", response_model=list[UserOut], status_code=status.HTTP_200_OK)
+@users_router.get(
+    "/",
+    response_model=list[UserOut],
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(PermissionDependency([IsAuthenticated]))]
+)
 async def get_all_users(user_service: Annotated[UserService, Depends()]):
     """
     Get all users.
@@ -30,7 +34,12 @@ async def get_all_users(user_service: Annotated[UserService, Depends()]):
     return users
 
 
-@users_router.get("/{user_id}", response_model=UserOut, status_code=status.HTTP_200_OK)
+@users_router.get(
+    "/{user_id}",
+    response_model=UserOut,
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(PermissionDependency([IsAuthenticated]))]
+)
 async def get_user_by_id(user_id: UUID4, user_service: Annotated[UserService, Depends()]):
     """
     Get user by ID.
@@ -51,7 +60,11 @@ async def get_user_by_id(user_id: UUID4, user_service: Annotated[UserService, De
     return user
 
 
-@users_router.post("/", response_model=UserOut, status_code=status.HTTP_201_CREATED,)
+@users_router.post(
+    "/",
+    response_model=UserOut,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_user(user_service: Annotated[UserService, Depends()], user: UserCreate):
     """
     Create a new user.
@@ -66,7 +79,12 @@ async def create_user(user_service: Annotated[UserService, Depends()], user: Use
     return await user_service.create_user(user=user)
 
 
-@users_router.patch("/{user_id}", response_model=UserOut, status_code=status.HTTP_200_OK)
+@users_router.patch(
+    "/{user_id}",
+    response_model=UserOut,
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(PermissionDependency([IsAuthenticated]))]
+)
 async def update_user(user_service: Annotated[UserService, Depends()], user: UserUpdate, user_id: UUID4):
     """
     Update a user.
@@ -82,7 +100,11 @@ async def update_user(user_service: Annotated[UserService, Depends()], user: Use
     return await user_service.update_user(user)
 
 
-@users_router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@users_router.delete(
+    "/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(PermissionDependency([IsAuthenticated, IsAdmin]))]
+)
 async def delete_user(user_service: Annotated[UserService, Depends()], user_id: UUID4):
     """
     Delete a user.
