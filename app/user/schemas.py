@@ -98,6 +98,6 @@ class UserUpdate(BaseModel):
 
 
 class LoginResponse(BaseModel):
-    token: str = Field(..., description="Token")
+    access_token: str = Field(..., description="Token")
     refresh_token: str = Field(..., description="Refresh token")
     token_type: str = Field(..., description="Type of token")
