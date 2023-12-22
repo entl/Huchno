@@ -7,7 +7,9 @@ from app.user.schemas import UserCreate, UserOut, UserUpdate
 from app.user.service import UserService
 
 from core import exceptions
-from core.fastapi.dependencies.permission import PermissionDependency, IsAuthenticated, IsAdmin
+from core.exceptions import InsufficientPermissions
+from core.fastapi.dependencies.permission import PermissionDependency, IsAuthenticated, IsAdmin, Permissions
+from core.fastapi.schemas.current_user import CurrentUser
 
 users_router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -83,37 +85,57 @@ async def create_user(user_service: Annotated[UserService, Depends()], user: Use
     "/{user_id}",
     response_model=UserOut,
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))]
 )
-async def update_user(user_service: Annotated[UserService, Depends()], user: UserUpdate, user_id: UUID4):
+async def update_user(
+        user_service: Annotated[UserService, Depends()],
+        updated_user: UserUpdate,
+        user_id: UUID4,
+        current_user: Annotated[CurrentUser, Depends(
+            PermissionDependency([IsAuthenticated, IsAdmin], all_required=False)
+        )]
+):
     """
     Update a user.
 
     Args:
         user_service (UserService): User Service instance.
-        user (UserUpdate): User data to update.
+        updated_user (UserUpdate): User data to update.
         user_id (str): The ID of the user to update.
+        current_user (CurrentUser): The currently authenticated user.
 
     Returns:
         UserOut: Updated user data.
     """
-    return await user_service.update_user(user)
+    if current_user.id == user_id or Permissions.IsAdmin in current_user.permissions:
+        return await user_service.update_user(updated_user)
+    else:
+        raise InsufficientPermissions()
 
 
 @users_router.delete(
     "/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(PermissionDependency([IsAuthenticated, IsAdmin]))]
+    dependencies=[]
 )
-async def delete_user(user_service: Annotated[UserService, Depends()], user_id: UUID4):
+async def delete_user(
+        user_service: Annotated[UserService, Depends()],
+        user_id: UUID4,
+        current_user: Annotated[CurrentUser, Depends(
+            PermissionDependency([IsAuthenticated, IsAdmin], all_required=False)
+        )]
+):
     """
     Delete a user.
 
     Args:
         user_service (UserService): User Service instance.
         user_id (str): The ID of the user to delete.
+        current_user (CurrentUser): The currently authenticated user.
 
     Returns:
         None
     """
-    await user_service.delete_user(user_id=user_id)
+    if current_user.id == user_id or Permissions.IsAdmin in current_user.permissions:
+        await user_service.delete_user(user_id=user_id)
+    else:
+        raise InsufficientPermissions()
