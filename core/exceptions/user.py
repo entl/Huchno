@@ -30,3 +30,9 @@ class UserAgeInvalid(CustomException):
     code = status.HTTP_409_CONFLICT
     error_code = "USER__AGE_INVALID"
     message = "user age invalid"
+
+
+class InsufficientPermissions(CustomException):
+    code = status.HTTP_403_FORBIDDEN
+    error_code = "USER__INSUFFICIENT_PERMISSIONS"
+    message = "insufficient permissions"

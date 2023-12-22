@@ -7,12 +7,14 @@ from .base import (
     DuplicateValueException,
     UnauthorizedException,
 )
-from .token import DecodeTokenException, ExpiredTokenException
+from .token import DecodeTokenException, ExpiredTokenException, TokenException
 from .user import (
     PasswordDoesNotMatchException,
     DuplicateEmailOrNicknameException,
     UserNotFoundException,
-    UserNotVerified
+    UserNotVerified,
+    InsufficientPermissions,
+    UserAgeInvalid
 )
 from .friends import (
     AlreadySentRequest,
@@ -37,5 +39,8 @@ __all__ = [
     "UserNotVerified",
     "AlreadySentRequest",
     "AlreadyReceivedRequest",
-    "AlreadyFriends"
+    "AlreadyFriends",
+    "InsufficientPermissions",
+    "UserAgeInvalid",
+    "TokenException",
 ]
