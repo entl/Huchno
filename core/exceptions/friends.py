@@ -17,3 +17,15 @@ class AlreadyFriends(CustomException):
     code = 409
     error_code = "REQUEST__FRIENDS_ERROR"
     message = "already friends"
+
+
+class SameUser(CustomException):
+    code = 409
+    error_code = "REQUEST__SAME_USER_ERROR"
+    message = "same user"
+
+
+class FriendshipNotFound(CustomException):
+    code = 404
+    error_code = "FRIENDSHIP_NOT_FOUND"
+    message = "friendship not found"
