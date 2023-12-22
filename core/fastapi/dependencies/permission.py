@@ -67,8 +67,8 @@ class PermissionDependency(SecurityBase):
                 cls = permission()
                 if await cls.has_permission(request=request):
                     allowed_permissions.append(cls.alias)
-                    if allowed_permissions:
-                        return CurrentUser(id=request.user.id, permissions=allowed_permissions)
+            if allowed_permissions:
+                return CurrentUser(id=request.user.id, permissions=allowed_permissions)
             raise UnauthorizedException
 
         if self.all_required:

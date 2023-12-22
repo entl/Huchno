@@ -135,6 +135,7 @@ async def delete_user(
     Returns:
         None
     """
+    print(current_user.permissions)
     if current_user.id == user_id or Permissions.IsAdmin in current_user.permissions:
         await user_service.delete_user(user_id=user_id)
     else:
