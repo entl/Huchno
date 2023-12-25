@@ -52,11 +52,11 @@ class UserService:
             return UserOut.model_validate(user)
 
     async def update_user(self, user: UserUpdate) -> UserOut:
-        if not await self.get_user_by_id(user.id_):
+        if not await self.get_user_by_id(user.id):
             raise exceptions.user.UserNotFoundException()
         async with async_session_factory() as session:
             new_values = user.model_dump(exclude_none=True, exclude_unset=True)
-            user_model = await self.user_repository.update(session=session, new_values=new_values, user_id=user.id_)
+            user_model = await self.user_repository.update(session=session, new_values=new_values, user_id=user.id)
             return UserOut.model_validate(user_model)
 
     async def delete_user(self, user_id: str) -> None:
