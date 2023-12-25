@@ -58,7 +58,7 @@ class UserOut(UserBase):
     Represents the output model for user information.
 
     Attributes:
-        id_ (UUID4): The unique identifier of the user.
+        id (UUID4): The unique identifier of the user.
         registration_date (datetime): The registration datetime of the user.
         profile_image (ProfileImageOut): The profile image of the user.
 
@@ -74,7 +74,7 @@ class UserOut(UserBase):
 
 
 class UserUpdate(BaseModel):
-    id_: Annotated[UUID4, Field(..., description="The unique identifier of the user")]
+    id: Annotated[UUID4, Field(..., description="The unique identifier of the user")]
     email: Optional[EmailStr] = Field(default=None, description="The email of the user")
     username: Optional[str] = Field(default=None, pattern="^[A-Za-z0-9-_.]+$", to_lower=True, strip_whitespace=True,
                                     description="The username of the user", min_length=4, max_length=128)
