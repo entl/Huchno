@@ -79,5 +79,3 @@ class PermissionDependency(SecurityBase):
                 allowed_permissions.append(cls.alias)
 
             return CurrentUser(id=request.user.id, permissions=allowed_permissions)
-
-
