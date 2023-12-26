@@ -103,3 +103,16 @@ class FriendshipService:
 
     async def decline_friendship_request(self, friendship_id: str) -> None:
         raise NotImplementedError()
+
+    async def is_users_friends(self, user_id: str, friend_id: str) -> bool:
+        async with async_session_factory() as session:
+            friendship = await self.friendship_repository.find_by_requester_id_address_id(
+                session=session,
+                requester_id=user_id,
+                addressee_id=friend_id
+            )
+
+            if friendship:
+                return friendship.status == FriendshipStatusEnum.accepted
+
+            return False
