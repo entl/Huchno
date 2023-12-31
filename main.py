@@ -6,8 +6,10 @@ from starlette.middleware import Middleware
 from starlette.responses import JSONResponse
 
 from api.auth import auth_router
+from api.chat import chat_router
 from api.user import users_router
 from api.friends import friends_router
+from core.db.mongo_session import init_db_beanie
 from core.exceptions import CustomException
 from core.fastapi.middlewares.auth_middleware import AuthenticationMiddleware, AuthBackend
 
@@ -79,6 +81,11 @@ def create_app():
 
 
 app = create_app()
+
+
+@app.on_event("startup")
+async def startup_event():
+    await init_db_beanie()
 
 
 @app.get("/")
