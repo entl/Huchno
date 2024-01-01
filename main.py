@@ -63,6 +63,7 @@ def init_routers(app_: FastAPI) -> None:
     app_.include_router(users_router)
     app_.include_router(auth_router)
     app_.include_router(friends_router)
+    app_.include_router(chat_router)
 
 
 def create_app():
