@@ -22,6 +22,10 @@ from .friends import (
     AlreadyFriends
 )
 
+from .chat import (
+    MessageToSelfException,
+    MessageToNonFriendException
+)
 
 __all__ = [
     "CustomException",
@@ -43,4 +47,6 @@ __all__ = [
     "InsufficientPermissions",
     "UserAgeInvalid",
     "TokenException",
+    "MessageToSelfException",
+    "MessageToNonFriendException"
 ]
