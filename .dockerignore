@@ -1,6 +1,6 @@
 __pycache__
 venv/
-.env
+.env*
 Dockerfile
 .dockerignore
 .pytest_cache
