@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     spotify_scopes: list[str] = Field(..., env="SPOTIFY_SCOPES")
 
     class Config:
-        env_file = ".env"
+        env_file = ".env-dev"
 
 
 settings = Settings()
