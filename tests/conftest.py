@@ -1,5 +1,5 @@
 import asyncio
-from typing import Generator, AsyncGenerator
+from typing import Generator
 
 import alembic
 import pytest
@@ -9,12 +9,9 @@ from faker import Faker
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import (async_sessionmaker, AsyncSession,
                                     create_async_engine, AsyncEngine)
-from sqlalchemy.orm import sessionmaker
-from starlette.testclient import TestClient
 
 from core.config import settings
 
-from core.db.session import Base
 from core.utils.token_helper import TokenHelper
 from main import app
 
@@ -41,14 +38,14 @@ async_testing_session = async_sessionmaker(autoflush=False,
 #     async with async_testing_engine.begin() as conn:
 #         await conn.run_sync(Base.metadata.create_all)
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def alembic_config():
     # Load Alembic configuration
     alembic_cfg = Config("alembic.ini")  # Replace with your Alembic config path
     return alembic_cfg
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session", autouse=True)
 def setup_test_db(alembic_config):
     # Perform migrations before tests start
     command.upgrade(alembic_config, "head")
@@ -58,7 +55,7 @@ def setup_test_db(alembic_config):
 
 
 @pytest.fixture()
-async def session(setup_test_db) -> Generator[AsyncSession, None, None]:
+async def session() -> Generator[AsyncSession, None, None]:
     db = async_testing_session()
     try:
         yield db
@@ -80,3 +77,25 @@ async def async_client(session: AsyncSession) -> AsyncClient:
     # overrides dependency in the routes
     async with AsyncClient(app=app, base_url="http://testserver") as ac:
         yield ac
+
+
+class UserFactory:
+    def __init__(self, async_client: AsyncClient, session: AsyncSession) -> None:
+        self.async_client = async_client
+        self.session = session
+
+    async def create_user(self, user_data: dict) -> dict:
+        res = await self.async_client.post("/users/", json=user_data)
+        assert res.status_code == 201
+        new_user = res.json()
+        new_user["email"] = user_data["email"]
+        new_user["password"] = user_data["password"]
+        return new_user
+
+    def authorized_client(self, user: dict) -> tuple[AsyncClient, dict]:
+        token = TokenHelper.encode(payload=user["id"])
+        return self._set_authorization_header(token), user
+
+    def _set_authorization_header(self, token: str) -> AsyncClient:
+        self.async_client.headers.update({"Authorization": f"Bearer {token}"})
+        return self.async_client
