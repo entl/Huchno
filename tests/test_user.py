@@ -1,7 +1,9 @@
 from datetime import datetime, date
 
+from starlette import status
+
 from app.user import schemas as user_schemas
-from core.exceptions import UserAgeInvalid
+from core.exceptions import UserAgeInvalid, DuplicateEmailOrNicknameException
 from .conftest import fake
 
 
@@ -24,6 +26,58 @@ async def test_CreateUser_Success(async_client):
     assert res_schema.registration_date == date.today()
 
 
+async def test_CreateUser_UsernameDuplicate(async_client):
+    data = {
+        "username": "test",
+        "email": fake.ascii_email(),
+        "password": "1233513tg",
+        "fullname": "First Second",
+        "birthdate": datetime.strftime(fake.date_of_birth(minimum_age=14, maximum_age=100), "%Y-%m-%d"),
+    }
+
+    await async_client.post("/users/", json=data)
+
+    data = {
+        "username": "test",
+        "email": fake.ascii_email(),
+        "password": "1233513tg",
+        "fullname": "First Second",
+        "birthdate": datetime.strftime(fake.date_of_birth(minimum_age=14, maximum_age=100), "%Y-%m-%d"),
+    }
+
+    res = await async_client.post("/users/", json=data)
+
+    res_json = res.json()
+    assert res.status_code == DuplicateEmailOrNicknameException.code
+    assert res_json["error_code"] == DuplicateEmailOrNicknameException.error_code
+
+
+async def test_CreateUser_EmailDuplicate(async_client):
+    data = {
+        "username": fake.user_name(),
+        "email": "test@gmail.com",
+        "password": "1233513tg",
+        "fullname": "First Second",
+        "birthdate": datetime.strftime(fake.date_of_birth(minimum_age=14, maximum_age=100), "%Y-%m-%d"),
+    }
+
+    await async_client.post("/users/", json=data)
+
+    data = {
+        "username": fake.user_name(),
+        "email": "test@gmail.com",
+        "password": "1233513tg",
+        "fullname": "First Second",
+        "birthdate": datetime.strftime(fake.date_of_birth(minimum_age=14, maximum_age=100), "%Y-%m-%d"),
+    }
+
+    res = await async_client.post("/users/", json=data)
+
+    res_json = res.json()
+    assert res.status_code == DuplicateEmailOrNicknameException.code
+    assert res_json["error_code"] == DuplicateEmailOrNicknameException.error_code
+
+
 async def test_CreateUser_AgeInvalid(async_client):
     data = {
         "username": "test",
@@ -40,3 +94,16 @@ async def test_CreateUser_AgeInvalid(async_client):
     assert res.status_code == UserAgeInvalid.code
     assert res_json["error_code"] == UserAgeInvalid.error_code
 
+
+async def test_CreateUser_SchemaInvalid(async_client):
+    data = {
+        "username": "",
+        "email": "",
+        "password": "",
+        "fullname": "",
+        "birthdate": None,
+    }
+
+    res = await async_client.post("/users/", json=data)
+
+    assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
