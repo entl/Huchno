@@ -74,7 +74,7 @@ class UserService:
             raise exceptions.user.PasswordDoesNotMatchException()
 
         response = LoginResponse(
-            access_token=TokenHelper.encode(payload={"user_id": str(user.id_)}),
+            access_token=TokenHelper.encode(payload={"user_id": str(user.id)}),
             refresh_token=TokenHelper.encode(payload={"sub": "refresh"}),
             token_type="bearer"
         )
