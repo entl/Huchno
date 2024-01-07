@@ -92,9 +92,9 @@ class UserFactory:
         new_user["password"] = user_data["password"]
         return new_user
 
-    def authorized_client(self, user: dict) -> tuple[AsyncClient, dict]:
-        token = TokenHelper.encode(payload=user["id"])
-        return self._set_authorization_header(token), user
+    def authorize_client(self, user_id: str) -> AsyncClient:
+        token = TokenHelper.encode(payload={"user_id": user_id})
+        return self._set_authorization_header(token)
 
     def _set_authorization_header(self, token: str) -> AsyncClient:
         self.async_client.headers.update({"Authorization": f"Bearer {token}"})
