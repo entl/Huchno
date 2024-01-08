@@ -20,6 +20,8 @@ class Settings(BaseSettings):
 
     redis_host: str
     redis_port: str
+    redis_celery_broker_db: str
+    redis_celery_backend_db: str
 
     s3_access_key: str
     s3_secret_access_key: str
