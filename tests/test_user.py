@@ -139,3 +139,9 @@ async def test_GetAllUsers_Successful(async_client, session):
 
     res = await authorized_client.get("/users/")
     assert res.status_code == status.HTTP_200_OK
+
+
+async def test_GetAllUsers_Unauthorized(async_client, session):
+    res = await async_client.get("/users/")
+    assert res.status_code == status.HTTP_401_UNAUTHORIZED
+
