@@ -10,12 +10,10 @@ services:
       - .env-dev
     environment:
       - PG_DATABASE_HOSTNAME=postgres
-#    command:
-#      - bash -c "alembic upgrade head"
-#      - uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     command: "sh -c 'alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --reload'"
     depends_on:
       - postgres
+      - redis
 
   postgres:
     image: postgres
@@ -29,6 +27,37 @@ services:
       - postgres-db:/var/lib/postgresql/data
     ports:
       - "5440:5432"
+
+  redis:
+    image: 'redis:alpine'
+    ports:
+      - "6380:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+
+  celery_worker:
+    build: .
+    volumes:
+      - ./:/usr/src/app
+    command: "celery -A celery_tasks.config:celery worker --pool=solo --loglevel=info --task-events"
+    healthcheck:
+      test: "celery -A celery_tasks.config:celery inspect ping"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      - redis
+
+  flower:
+    build: .
+    volumes:
+      - ./:/usr/src/app
+    command: "celery -A celery_tasks.config:celery flower --port=5555 --host 0.0.0.0 --loglevel=info"
+    ports:
+      - 5556:5555
+    depends_on:
+      celery_worker:
+        condition: service_healthy
 
 volumes:
   postgres-db:
