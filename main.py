@@ -13,6 +13,9 @@ from core.db.mongo_session import init_db_beanie
 from core.exceptions import CustomException
 from core.fastapi.middlewares.auth_middleware import AuthenticationMiddleware, AuthBackend
 
+# index file
+from celery_tasks.config import celery
+
 # Configure web domain which can access api
 origins = [
     "*",

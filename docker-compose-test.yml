@@ -13,6 +13,7 @@ services:
     command: "sh -c 'pytest -s -v --disable-warnings'"
     depends_on:
       - pytest-postgres
+      - pytest-redis
 
   pytest-postgres:
     image: postgres
@@ -26,6 +27,37 @@ services:
       - pytest-postgres-db:/var/lib/postgresql/data
     ports:
       - "5441:5432"
+
+  pytest-redis:
+    image: 'redis:alpine'
+    ports:
+      - "6381:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+
+  pytest-celery_worker:
+    build: .
+    volumes:
+      - ./:/usr/src/app
+    command: "celery -A celery_tasks.config:celery worker --pool=solo --loglevel=info --task-events"
+    healthcheck:
+      test: "celery -A celery_tasks.config:celery inspect ping"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      - redis
+
+  pytest-flower:
+    build: .
+    volumes:
+      - ./:/usr/src/app
+    command: "celery -A celery_tasks.config:celery flower --port=5555 --host 0.0.0.0 --loglevel=info"
+    ports:
+      - 5557:5555
+    depends_on:
+      celery_worker:
+        condition: service_healthy
 
 volumes:
   pytest-postgres-db:
