@@ -22,7 +22,7 @@ class FriendshipRequestIn(BaseFriendshipRequest):
 
 
 class FriendshipOut(BaseFriendshipRequest):
-    id_: UUID4 = Field(alias="id")
+    id: UUID4 = Field(alias="id")
     user: UserOut = Field(..., description="User details of the second user")
     accept_date: datetime | None = Field(None, description="The date when the friendship was accepted")
     request_date: datetime = Field(None, description="The date when the friendship was requested")

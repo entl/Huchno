@@ -41,7 +41,7 @@ class UserRepository:
             select(
                 models.User
             ).filter(
-                models.User.id_ == user_id
+                models.User.id == user_id
             )
         )).scalars().first()
 
@@ -130,7 +130,7 @@ class UserRepository:
         try:
             query = (
                 update(models.User)
-                .where(user_id == models.User.id_)
+                .where(user_id == models.User.id)
                 .values(**new_values)
                 .returning(models.User)
             )
@@ -161,7 +161,7 @@ class UserRepository:
             HTTPException: If there is an error deleting the user from the database.
         """
         try:
-            await session.execute(delete(models.User).where(models.User.id_ == user_id))
+            await session.execute(delete(models.User).where(models.User.id == user_id))
             await session.commit()
         except (SQLAlchemyError, Exception) as e:
             if isinstance(e, SQLAlchemyError):

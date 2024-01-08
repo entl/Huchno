@@ -24,10 +24,10 @@ class Friendship(Base):
     """
     __tablename__ = 'friendships'
 
-    id_ = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False)
 
-    requester_id = Column(UUID(as_uuid=True), ForeignKey('users.id_', ondelete="CASCADE"), nullable=False)
-    addressee_id = Column(UUID(as_uuid=True), ForeignKey('users.id_', ondelete="CASCADE"), nullable=False)
+    requester_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    addressee_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
 
     status = Column(Enum(FriendshipStatusEnum), nullable=False)
     request_date = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)

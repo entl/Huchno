@@ -43,7 +43,7 @@ class FriendsRepository:
             select(
                 Friendship
             ).filter(
-                Friendship.id_ == friendship_id
+                Friendship.id == friendship_id
             )
         )).scalars().first()
 
@@ -222,7 +222,7 @@ class FriendsRepository:
         try:
             query = (
                 update(Friendship)
-                .where(friendship_id == Friendship.id_)
+                .where(friendship_id == Friendship.id)
                 .values(**new_values)
                 .returning(Friendship)
             )
@@ -249,7 +249,7 @@ class FriendsRepository:
         try:
             query = (
                 delete(Friendship)
-                .where(friendship_id == Friendship.id_)
+                .where(friendship_id == Friendship.id)
             )
             await session.execute(query)
             await session.commit()

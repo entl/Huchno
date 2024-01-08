@@ -63,7 +63,7 @@ class UserOut(UserBase):
         profile_image (ProfileImageOut): The profile image of the user.
 
     """
-    id_: Annotated[UUID4, Field(..., description="The unique identifier of the user")]
+    id: Annotated[UUID4, Field(..., description="The unique identifier of the user")]
     registration_date: Annotated[date, Field(..., description="The registration datetime of the user")]
     email: Annotated[EmailStr, Field(..., description="The email of the user")]
     # profile_image: ProfileImageOut
@@ -71,6 +71,7 @@ class UserOut(UserBase):
 
     class Config:
         from_attributes = True
+        populate_by_name = True
 
 
 class UserUpdate(BaseModel):
