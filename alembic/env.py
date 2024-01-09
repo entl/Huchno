@@ -8,6 +8,7 @@ from alembic import context
 from core.config import settings
 from app.user.models import Base
 from app.friends.models import Base
+from app.location.models import Base
 
 
 
