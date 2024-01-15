@@ -19,7 +19,8 @@ from .user import (
 from .friends import (
     AlreadySentRequest,
     AlreadyReceivedRequest,
-    AlreadyFriends
+    AlreadyFriends,
+    UsersNotFriends
 )
 
 from .chat import (
@@ -48,5 +49,6 @@ __all__ = [
     "UserAgeInvalid",
     "TokenException",
     "MessageToSelfException",
-    "MessageToNonFriendException"
+    "MessageToNonFriendException",
+    "UsersNotFriends"
 ]

@@ -29,3 +29,9 @@ class FriendshipNotFound(CustomException):
     code = 404
     error_code = "FRIENDSHIP_NOT_FOUND"
     message = "friendship not found"
+
+
+class UsersNotFriends(CustomException):
+    code = 409
+    error_code = "USERS__NOT_FRIENDS_ERROR"
+    message = "users are not friends"

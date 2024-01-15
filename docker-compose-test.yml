@@ -13,7 +13,7 @@ services:
     command: "sh -c 'pytest -s -v --disable-warnings'"
     depends_on:
       - pytest-postgres
-      - pytest-redis
+      - redis
 
   pytest-postgres:
     image: postgres
@@ -28,7 +28,7 @@ services:
     ports:
       - "5441:5432"
 
-  pytest-redis:
+  redis:
     image: 'redis:alpine'
     ports:
       - "6381:6379"
@@ -56,7 +56,7 @@ services:
     ports:
       - 5557:5555
     depends_on:
-      celery_worker:
+      pytest-celery_worker:
         condition: service_healthy
 
 volumes:

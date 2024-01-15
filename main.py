@@ -7,6 +7,7 @@ from starlette.responses import JSONResponse
 
 from api.auth import auth_router
 from api.chat import chat_router
+from api.location import location_router
 from api.user import users_router
 from api.friends import friends_router
 from core.db.mongo_session import init_db_beanie
@@ -67,6 +68,7 @@ def init_routers(app_: FastAPI) -> None:
     app_.include_router(auth_router)
     app_.include_router(friends_router)
     app_.include_router(chat_router)
+    app_.include_router(location_router)
 
 
 def create_app():
