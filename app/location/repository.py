@@ -38,4 +38,23 @@ class SqlAlchemyLocationRepository:
         return location
 
 
+class RedisPubSubRepository:
+    @classmethod
+    async def publish(cls, channel: str, message: str, redis: Redis):
+        await redis.publish(channel, message)
 
+    @classmethod
+    async def subscribe(cls, channel: str, redis: Redis):
+        pubsub = redis.pubsub()
+        await pubsub.subscribe(channel)
+        return pubsub
+
+    @classmethod
+    async def unsubscribe(cls, channel: str, redis: Redis):
+        pubsub = redis.pubsub()
+        await pubsub.unsubscribe(channel)
+        return pubsub
+
+    @classmethod
+    async def get_message(cls, pubsub: redis.client.PubSub):
+        return await pubsub.get_message(ignore_subscribe_messages=True)
