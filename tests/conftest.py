@@ -47,11 +47,11 @@ def alembic_config():
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_db(alembic_config):
-    # Perform migrations before tests start
-    command.upgrade(alembic_config, "head")
-    yield
     # Clean up after tests are done
     command.downgrade(alembic_config, "base")
+    # Perform migrations before tests start
+    command.upgrade(alembic_config, "head")
+    # yield
 
 
 @pytest.fixture()
