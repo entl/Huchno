@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from starlette import status
@@ -133,3 +134,80 @@ async def test_GetReceivedRequests_Success(async_client, session):
 async def test_GetReceivedRequests_Unauthorized(async_client, session):
     res = await async_client.get("/friends/requests/received")
     assert res.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+async def test_AcceptReceivedRequest_Success(async_client, session):
+    user_factory = UserFactory(async_client=async_client, session=session)
+    users_data = [
+        {
+            "username": fake.user_name(),
+            "email": fake.ascii_email(),
+            "password": fake.password(length=10),
+            "fullname": fake.name(),
+            "birthdate": datetime.strftime(fake.date_of_birth(minimum_age=14, maximum_age=100), "%Y-%m-%d"),
+        },
+        {
+            "username": fake.user_name(),
+            "email": fake.ascii_email(),
+            "password": fake.password(length=10),
+            "fullname": fake.name(),
+            "birthdate": datetime.strftime(fake.date_of_birth(minimum_age=14, maximum_age=100), "%Y-%m-%d"),
+        }
+    ]
+    created_users = [await user_factory.create_user(user) for user in users_data]
+
+    await generate_received_requests(
+        from_user_ids=[str(created_users[i]["id"]) for i in range(1, len(created_users))],
+        to_user_id=created_users[0]["id"],
+        session=session
+    )
+
+    authorized_client = user_factory.authorize_client(str(created_users[0]["id"]))
+
+    received_requests_res = await authorized_client.get("/friends/requests/received")
+    received_request_id = received_requests_res.json()[0]["id"]
+
+    res = await authorized_client.patch(f"/friends/{received_request_id}/accept")
+    res_json = res.json()
+
+    assert res.status_code == status.HTTP_200_OK
+    assert res_json["status"] == FriendshipStatusEnum.accepted.value
+
+
+async def test_AcceptReceivedRequest_Unauthorized(async_client, session):
+    res = await async_client.patch("/friends/123/accept")
+    assert res.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+async def test_AcceptReceivedRequest_NotFound(async_client, session):
+    user_factory = UserFactory(async_client=async_client, session=session)
+    created_user = await user_factory.create_user(
+        {
+            "username": fake.user_name(),
+            "email": fake.ascii_email(),
+            "password": fake.password(length=10),
+            "fullname": fake.name(),
+            "birthdate": datetime.strftime(fake.date_of_birth(minimum_age=14, maximum_age=100), "%Y-%m-%d"),
+        }
+    )
+    authorized_client = user_factory.authorize_client(str(created_user["id"]))
+
+    res = await authorized_client.patch(f"/friends/{uuid.uuid4()}/accept")
+    assert res.status_code == status.HTTP_404_NOT_FOUND
+
+
+async def test_AcceptReceivedRequest_UnprocessableUuid(async_client, session):
+    user_factory = UserFactory(async_client=async_client, session=session)
+    created_user = await user_factory.create_user(
+        {
+            "username": fake.user_name(),
+            "email": fake.ascii_email(),
+            "password": fake.password(length=10),
+            "fullname": fake.name(),
+            "birthdate": datetime.strftime(fake.date_of_birth(minimum_age=15, maximum_age=100), "%Y-%m-%d"),
+        }
+    )
+    authorized_client = user_factory.authorize_client(str(created_user["id"]))
+
+    res = await authorized_client.patch(f"/friends/123/accept")
+    assert res.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
