@@ -56,6 +56,6 @@ jobs:
 
     - name: Run Docker Compose And Tests
       run: |
-        docker-compose -f docker-compose-autotest.yml up
+        docker-compose -f docker-compose-autotest.yml run pytest
         docker-compose -f docker-compose-autotest.yml down
 
