@@ -1,0 +1,16 @@
+name: Build and deploy code
+
+on: [push, pull_request]
+
+jobs:
+  testing:
+    env:
+      COMPOSE_INTERACTIVE_NO_CLI: 1
+    runs-on: macos-latest
+    steps:
+      - name: Pull Code
+        uses: actions/checkout@v2
+      - name: Run Docker Compose Tests
+        run: |
+          docker-compose -f docker-compose-tests.yml up --build --abort-on-container-exit
+          docker-compose -f docker-compose-test.yml down
