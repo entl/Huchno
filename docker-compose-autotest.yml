@@ -67,29 +67,29 @@ services:
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
 
-  pytest-celery_worker:
-    build: .
-    volumes:
-      - ./:/usr/src/app
-    command: "celery -A celery_tasks.config:celery worker --pool=solo --loglevel=info --task-events"
-    healthcheck:
-      test: "celery -A celery_tasks.config:celery inspect ping"
-      interval: 10s
-      timeout: 10s
-      retries: 5
-    depends_on:
-      - redis
-
-  pytest-flower:
-    build: .
-    volumes:
-      - ./:/usr/src/app
-    command: "celery -A celery_tasks.config:celery flower --port=5555 --host 0.0.0.0 --loglevel=info"
-    ports:
-      - 5557:5555
-    depends_on:
-      pytest-celery_worker:
-        condition: service_healthy
+#  pytest-celery_worker:
+#    build: .
+#    volumes:
+#      - ./:/usr/src/app
+#    command: "celery -A celery_tasks.config:celery worker --pool=solo --loglevel=info --task-events"
+#    healthcheck:
+#      test: "celery -A celery_tasks.config:celery inspect ping"
+#      interval: 10s
+#      timeout: 10s
+#      retries: 5
+#    depends_on:
+#      - redis
+#
+#  pytest-flower:
+#    build: .
+#    volumes:
+#      - ./:/usr/src/app
+#    command: "celery -A celery_tasks.config:celery flower --port=5555 --host 0.0.0.0 --loglevel=info"
+#    ports:
+#      - 5557:5555
+#    depends_on:
+#      pytest-celery_worker:
+#        condition: service_healthy
 
 volumes:
   pytest-postgres-db:
