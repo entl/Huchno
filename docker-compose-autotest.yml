@@ -42,9 +42,6 @@ services:
       - REDIS_CELERY_BROKER_DB=${REDIS_CELERY_BROKER_DB}
       - REDIS_CELERY_BACKEND_DB=${REDIS_CELERY_BACKEND_DB}
       - REDIS_LOCATION_CHANNEL=${REDIS_LOCATION_CHANNEL}
-
-
-    command: "sh -c 'pytest -s -v --disable-warnings'"
     depends_on:
       - pytest-postgres
       - redis
