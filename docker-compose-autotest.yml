@@ -1,0 +1,95 @@
+version: "3"
+services:
+  pytest:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/usr/src/app
+    environment:
+      - PG_DATABASE_HOSTNAME=pytest-postgres
+      - POSTGRES_PASSWORD=${PG_DATABASE_PASSWORD}
+      - POSTGRES_USER=${PG_DATABASE_USERNAME}
+      - POSTGRES_DB=${PG_DATABASE_NAME}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM}
+      - JWT_TOKEN_EXPIRE_MINUTES=${JWT_TOKEN_EXPIRE_MINUTES}
+
+      - MONGO_USERNAME=${MONGO_USERNAME}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_CLUSTER_NAME=${MONGO_CLUSTER_NAME}
+      - MONGO_CHAT_DATABASE_NAME=${MONGO_CHAT_DATABASE_NAME}
+      - MONGO_MESSAGES_COLLECTION_NAME=${MONGO_MESSAGES_COLLECTION_NAME}
+
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
+      - S3_PROFILE_IMAGE_BUCKET=${S3_PROFILE_IMAGE_BUCKET}
+      - DEFAULT_PROFILE_IMAGE=${DEFAULT_PROFILE_IMAGE}
+
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      - SPOTIFY_SCOPES=${SPOTIFY_SCOPES}
+      - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI}
+
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_USERNAME=${EMAIL_USERNAME}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_FROM=${EMAIL_FROM}
+
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_CELERY_BROKER_DB=${REDIS_CELERY_BROKER_DB}
+      - REDIS_CELERY_BACKEND_DB=${REDIS_CELERY_BACKEND_DB}
+      - REDIS_LOCATION_CHANNEL=${REDIS_LOCATION_CHANNEL}
+
+
+    command: "sh -c 'pytest -s -v --disable-warnings'"
+    depends_on:
+      - pytest-postgres
+      - redis
+
+  pytest-postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: ${PG_DATABASE_PASSWORD}
+      POSTGRES_USER: ${PG_DATABASE_USERNAME}
+      POSTGRES_DB: ${PG_DATABASE_NAME}
+    volumes:
+      - pytest-postgres-db:/var/lib/postgresql/data
+    ports:
+      - "5441:5432"
+
+  redis:
+    image: 'redis:alpine'
+    ports:
+      - "6381:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+
+  pytest-celery_worker:
+    build: .
+    volumes:
+      - ./:/usr/src/app
+    command: "celery -A celery_tasks.config:celery worker --pool=solo --loglevel=info --task-events"
+    healthcheck:
+      test: "celery -A celery_tasks.config:celery inspect ping"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      - redis
+
+  pytest-flower:
+    build: .
+    volumes:
+      - ./:/usr/src/app
+    command: "celery -A celery_tasks.config:celery flower --port=5555 --host 0.0.0.0 --loglevel=info"
+    ports:
+      - 5557:5555
+    depends_on:
+      pytest-celery_worker:
+        condition: service_healthy
+
+volumes:
+  pytest-postgres-db:

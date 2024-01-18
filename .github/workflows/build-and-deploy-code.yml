@@ -1,16 +1,65 @@
-name: Build and deploy code
+name: CI/CD Pipeline
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  testing:
-    env:
-      COMPOSE_INTERACTIVE_NO_CLI: 1
+  build:
     runs-on: ubuntu-latest
+
+    env:
+      PG_DATABASE_HOSTNAME: ${{ secrets.PG_DATABASE_HOSTNAME }}
+      PG_DATABASE_PORT: ${{ secrets.PG_DATABASE_PORT }}
+      PG_DATABASE_PASSWORD: ${{ secrets.PG_DATABASE_PASSWORD }}
+      PG_DATABASE_NAME: ${{ secrets.PG_DATABASE_NAME }}
+      PG_DATABASE_USERNAME: ${{ secrets.PG_DATABASE_USERNAME }}
+
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+      JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM }}
+      JWT_TOKEN_EXPIRE_MINUTES: ${{ secrets.JWT_TOKEN_EXPIRE_MINUTES }}
+
+      MONGO_USERNAME: ${{ secrets.MONGO_USERNAME }}
+      MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+      MONGO_CLUSTER_NAME: ${{ secrets.MONGO_CLUSTER_NAME }}
+      MONGO_CHAT_DATABASE_NAME: ${{ secrets.MONGO_CHAT_DATABASE_NAME }}
+      MONGO_MESSAGES_COLLECTION_NAME: ${{ secrets.MONGO_MESSAGES_COLLECTION_NAME }}
+
+      S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+      S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+      S3_PROFILE_IMAGE_BUCKET: ${{ secrets.S3_PROFILE_IMAGE_BUCKET }}
+      DEFAULT_PROFILE_IMAGE: ${{ secrets.DEFAULT_PROFILE_IMAGE }}
+
+      SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+      SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+      SPOTIFY_SCOPES: ${{ secrets.SPOTIFY_SCOPES }}
+      SPOTIFY_REDIRECT_URI: ${{ secrets.SPOTIFY_REDIRECT_URI }}
+
+      EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+      EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+      EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+
+      REDIS_HOST: ${{ secrets.REDIS_HOST }}
+      REDIS_PORT: ${{ secrets.REDIS_PORT }}
+      REDIS_CELERY_BROKER_DB: ${{ secrets.REDIS_CELERY_BROKER_DB }}
+      REDIS_CELERY_BACKEND_DB: ${{ secrets.REDIS_CELERY_BACKEND_DB }}
+      REDIS_LOCATION_CHANNEL: ${{ secrets.REDIS_LOCATION_CHANNEL }}
+
     steps:
-      - name: Pull Code
-        uses: actions/checkout@v2
-      - name: Run Docker Compose Tests
-        run: |
-          docker-compose -f docker-compose-test.yml up --build --abort-on-container-exit
-          docker-compose -f docker-compose-test.yml down
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up Docker
+      uses: docker/setup-docker@v2
+      with:
+        dockerfile: ./path/to/Dockerfile
+
+    - name: Build Docker Compose
+      run: docker-compose -f docker-compose-autotest.yml build
+
+    - name: Run Docker Compose And Tests
+      run: docker-compose -f docker-compose-autotest.yml up -d
+
