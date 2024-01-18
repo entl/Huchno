@@ -15,5 +15,5 @@ jobs:
           brew install docker docker-compose
       - name: Run Docker Compose Tests
         run: |
-          docker-compose -f docker-compose-tests.yml up --build --abort-on-container-exit
+          docker-compose -f docker-compose-test.yml up --build --abort-on-container-exit
           docker-compose -f docker-compose-test.yml down
