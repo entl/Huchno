@@ -5,7 +5,7 @@ from pydantic import UUID4
 from starlette import status
 
 from app.friends.service import FriendshipService
-from core.fastapi.dependencies.permission import PermissionDependency, IsAuthenticated, IsAdmin
+from core.fastapi.dependencies.permission import PermissionDependencyHTTP, IsAuthenticated, IsAdmin
 from core.fastapi.schemas.current_user import CurrentUser
 from app.friends.schemas import FriendshipRequestIn
 
@@ -16,7 +16,7 @@ friends_router = APIRouter(prefix="/friends", tags=["Friends"])
 async def get_all_friends(
         friendship_service: Annotated[FriendshipService, Depends()],
         current_user: Annotated[CurrentUser, Depends(
-            PermissionDependency([IsAuthenticated], all_required=True)
+            PermissionDependencyHTTP([IsAuthenticated], all_required=True)
         )]
 ):
     return await friendship_service.get_friends(user_id=str(current_user.id))
@@ -26,7 +26,7 @@ async def get_all_friends(
 async def get_sent_friendship_requests(
         friendship_service: Annotated[FriendshipService, Depends()],
         current_user: Annotated[CurrentUser, Depends(
-            PermissionDependency([IsAuthenticated], all_required=True)
+            PermissionDependencyHTTP([IsAuthenticated], all_required=True)
         )]
 ):
     return await friendship_service.get_sent_friendship_requests(user_id=str(current_user.id))
@@ -36,7 +36,7 @@ async def get_sent_friendship_requests(
 async def get_received_friendship_requests(
         friendship_service: Annotated[FriendshipService, Depends()],
         current_user: Annotated[CurrentUser, Depends(
-            PermissionDependency([IsAuthenticated], all_required=True)
+            PermissionDependencyHTTP([IsAuthenticated], all_required=True)
         )]
 ):
     return await friendship_service.get_received_friendship_requests(user_id=str(current_user.id))
@@ -47,7 +47,7 @@ async def send_friend_request(
         request: FriendshipRequestIn,
         friendship_service: Annotated[FriendshipService, Depends()],
         current_user: Annotated[CurrentUser, Depends(
-            PermissionDependency([IsAuthenticated], all_required=True)
+            PermissionDependencyHTTP([IsAuthenticated], all_required=True)
         )]
 ):
     request = await friendship_service.send_friend_request(
@@ -62,7 +62,7 @@ async def accept_friend_request(
         friendship_id: UUID4,
         friendship_service: Annotated[FriendshipService, Depends()],
         current_user: Annotated[CurrentUser, Depends(
-            PermissionDependency([IsAuthenticated], all_required=True)
+            PermissionDependencyHTTP([IsAuthenticated], all_required=True)
         )]
 ):
     friendship = await friendship_service.accept_friendship_request(
