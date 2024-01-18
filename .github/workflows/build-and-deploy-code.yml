@@ -45,6 +45,7 @@ jobs:
       REDIS_CELERY_BROKER_DB: ${{ secrets.REDIS_CELERY_BROKER_DB }}
       REDIS_CELERY_BACKEND_DB: ${{ secrets.REDIS_CELERY_BACKEND_DB }}
       REDIS_LOCATION_CHANNEL: ${{ secrets.REDIS_LOCATION_CHANNEL }}
+      COMPOSE_INTERACTIVE_NO_CLI: 1
 
     steps:
     - name: Checkout Repository
@@ -56,8 +57,6 @@ jobs:
     - name: Run Docker Compose And Tests
       run: |
         docker-compose -f docker-compose-autotest.yml up -d
-        docker run -it hucnho-restart-api
-        pytest -s -v
-        exit
+        docker exec hucnho-restart-pytest-1 pytest -s -v 
         docker-compose -f docker-compose-autotest.yml down
 
