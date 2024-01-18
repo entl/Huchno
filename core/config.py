@@ -44,7 +44,8 @@ class Settings(BaseSettings):
     spotify_client_id: str = Field(..., env="SPOTIFY_CLIENT_ID")
     spotify_client_secret: str = Field(..., env="SPOTIFY_CLIENT_SECRET")
     spotify_redirect_uri: str = Field(..., env="SPOTIFY_REDIRECT_URI")
-    spotify_scopes: list[str] = Field(..., env="SPOTIFY_SCOPES")
+    # temporary commented out because of unable to parse list of strings
+    # spotify_scopes: list[str] = Field(..., env="SPOTIFY_SCOPES")
 
     class Config:
         env_file = ".env-dev"
