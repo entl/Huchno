@@ -8,7 +8,7 @@ from sse_starlette import EventSourceResponse
 from app.chat.service import MessageService
 from app.chat.schemas import MessageIn, MessageBase
 from app.friends.service import FriendshipService
-from core.fastapi.dependencies.permission import IsAuthenticated, PermissionDependency
+from core.fastapi.dependencies.permission import IsAuthenticated, PermissionDependencyHTTP
 from core.fastapi.schemas.current_user import CurrentUser
 from core.exceptions import MessageToSelfException, MessageToNonFriendException
 
@@ -25,7 +25,7 @@ def is_message_to_self(sender_id: UUID4, recipient_id: UUID4) -> bool:
 @chat_router.post("/")
 async def send_message(
         current_user: Annotated[CurrentUser, Depends(
-            PermissionDependency([IsAuthenticated], all_required=True)
+            PermissionDependencyHTTP([IsAuthenticated], all_required=True)
         )],
         message_service: Annotated[MessageService, Depends()],
         friendship_service: Annotated[FriendshipService, Depends()],
@@ -46,7 +46,7 @@ async def send_message(
 async def message_stream(
         message_service: Annotated[MessageService, Depends()],
         current_user: Annotated[CurrentUser, Depends(
-            PermissionDependency([IsAuthenticated], all_required=True)
+            PermissionDependencyHTTP([IsAuthenticated], all_required=True)
         )],
 ):
     async def casting():
@@ -65,7 +65,7 @@ async def message_stream(
 async def get_messages(
         recipient_id: UUID4,
         current_user: Annotated[CurrentUser, Depends(
-            PermissionDependency([IsAuthenticated], all_required=True)
+            PermissionDependencyHTTP([IsAuthenticated], all_required=True)
         )],
         message_service: Annotated[MessageService, Depends()],
 ):

@@ -8,7 +8,7 @@ from app.user.service import UserService
 
 from core import exceptions
 from core.exceptions import InsufficientPermissions
-from core.fastapi.dependencies.permission import PermissionDependency, IsAuthenticated, IsAdmin, Permissions
+from core.fastapi.dependencies.permission import PermissionDependencyHTTP, IsAuthenticated, IsAdmin, Permissions
 from core.fastapi.schemas.current_user import CurrentUser
 
 users_router = APIRouter(prefix="/users", tags=["Users"])
@@ -18,7 +18,7 @@ users_router = APIRouter(prefix="/users", tags=["Users"])
     "/",
     response_model=list[UserOut],
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))]
+    dependencies=[Depends(PermissionDependencyHTTP([IsAuthenticated]))]
 )
 async def get_all_users(user_service: Annotated[UserService, Depends()]):
     """
@@ -40,7 +40,7 @@ async def get_all_users(user_service: Annotated[UserService, Depends()]):
     "/{user_id}",
     response_model=UserOut,
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(PermissionDependency([IsAuthenticated]))]
+    dependencies=[Depends(PermissionDependencyHTTP([IsAuthenticated]))]
 )
 async def get_user_by_id(user_id: UUID4, user_service: Annotated[UserService, Depends()]):
     """
@@ -91,7 +91,7 @@ async def update_user(
         updated_user: UserUpdate,
         user_id: UUID4,
         current_user: Annotated[CurrentUser, Depends(
-            PermissionDependency([IsAuthenticated, IsAdmin], all_required=False)
+            PermissionDependencyHTTP([IsAuthenticated, IsAdmin], all_required=False)
         )]
 ):
     """
@@ -121,7 +121,7 @@ async def delete_user(
         user_service: Annotated[UserService, Depends()],
         user_id: UUID4,
         current_user: Annotated[CurrentUser, Depends(
-            PermissionDependency([IsAuthenticated, IsAdmin], all_required=False)
+            PermissionDependencyHTTP([IsAuthenticated, IsAdmin], all_required=False)
         )]
 ):
     """
