@@ -57,6 +57,6 @@ jobs:
     - name: Run Docker Compose And Tests
       run: |
         docker-compose -f docker-compose-autotest.yml up -d
-        docker exec hucnho-restart-pytest-1 pytest -s -v 
+        docker exec hucnho_pytest_1 pytest -s -v 
         docker-compose -f docker-compose-autotest.yml down
 
