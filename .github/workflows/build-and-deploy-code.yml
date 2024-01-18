@@ -6,13 +6,10 @@ jobs:
   testing:
     env:
       COMPOSE_INTERACTIVE_NO_CLI: 1
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Pull Code
-        uses: actions/checkout@v2
-      - name: Install Colima
-        run: |
-          brew install docker docker-compose
+        uses: actions/checkout@v2e
       - name: Run Docker Compose Tests
         run: |
           docker-compose -f docker-compose-test.yml up --build --abort-on-container-exit
