@@ -1,43 +1,10 @@
-import {Text, Animated, StyleSheet, SafeAreaView} from "react-native";
-import React, {useEffect, useState} from "react";
-import axios from "axios";
-import ScrollView = Animated.ScrollView;
-import {Link} from "expo-router";
-import {UserFromApi} from "@/app/_schemas";
+import {Text, StyleSheet, SafeAreaView, View} from "react-native";
+import React from "react";
 
-import {useAuth} from "@/context/AuthContext";
-import {API_HOST} from "@env";
-import {getUsers} from "@/app/_queries";
-
-const Index = () => {
-    const [userData, setUserData] = useState<UserFromApi[]>([]);
-    const {access_token, onLogout} = useAuth();
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                let users = await getUsers(access_token);
-                setUserData(users);
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        };
-        fetchData();
-    }, []);
-
+const HomeIndex = () => {
     return (
         <SafeAreaView style={{flex: 1}}>
-            <ScrollView style={styles.container}>
-                {userData.map((user) => (
-                    <Link style={styles.group}
-                          href={{
-                              pathname: "/(app)/chat/[chatid]",
-                              params: {chatid: user.id},
-                          }}>
-                        <Text>{user.username}</Text>
-                    </Link>
-                ))}
-            </ScrollView>
+           <View><Text>INDEX HOME</Text></View>
         </SafeAreaView>
     );
 }
@@ -63,4 +30,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Index;
+export default HomeIndex;
