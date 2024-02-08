@@ -46,6 +46,10 @@ class Settings(BaseSettings):
     spotify_redirect_uri: str = Field(..., env="SPOTIFY_REDIRECT_URI")
     spotify_scopes: list[str] = Field(..., env="SPOTIFY_SCOPES")
 
+    aws_access_key: str = Field(..., env="AWS_ACCESS_KEY")
+    aws_secret_access_key: str = Field(..., env="AWS_SECRET_ACCESS_KEY")
+    aws_s3_profile_image_bucket: str = Field(..., env="AWS_S3_PROFILE_IMAGE_BUCKET")
+
     class Config:
         env_file = ".env-dev"
 

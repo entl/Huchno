@@ -160,6 +160,3 @@ cython_debug/
 .idea/
 
 alembic.ini
-
-frontend/react-native-dotenv.d.ts
-frontend/expo-env.d.ts
