@@ -25,35 +25,19 @@ class FriendshipService:
         async with async_session_factory() as session:
             res = await self.friendship_repository.find_friends_by_user_id(session=session, user_id=user_id)
 
-            requests = []
-            for friendship in res:
-                temp = FriendshipOut.model_validate({**friendship.__dict__, "user": friendship.addressee})
-                requests.append(temp)
-
-            return requests
+            return [await self._construct_friendship(friendship) for friendship in res]
 
     async def get_sent_friendship_requests(self, user_id: str):
         async with async_session_factory() as session:
             res = await self.friendship_repository.find_sent_requests_by_user_id(session=session, user_id=user_id)
 
-            requests = []
-            for friendship in res:
-                temp = FriendshipOut.model_validate({**friendship.__dict__, "user": friendship.addressee})
-                requests.append(temp)
-
-            return requests
+            return [await self._construct_friendship(friendship) for friendship in res]
 
     async def get_received_friendship_requests(self, user_id: str):
         async with async_session_factory() as session:
             res = await self.friendship_repository.find_received_requests_by_user_id(session=session, user_id=user_id)
 
-            requests = []
-            for friendship in res:
-
-                temp = FriendshipOut.model_validate({**friendship.__dict__, "user": friendship.requester})
-                requests.append(temp)
-
-            return requests
+            return [await self._construct_friendship(friendship) for friendship in res]
 
     async def send_friend_request(self, user_id: str, friend_id: str) -> FriendshipOut:
         async with async_session_factory() as session:
@@ -83,7 +67,8 @@ class FriendshipService:
             # refresh the session to get the updated values
             await session.refresh(request_sent)
 
-            return FriendshipOut.model_validate({**request_sent.__dict__, "user": request_sent.addressee})
+            # return FriendshipOut.model_validate({**request_sent.__dict__, "user": request_sent.addressee})
+            return await self._construct_friendship(request_sent)
 
     async def accept_friendship_request(self, friendship_id: str) -> FriendshipOut:
         async with async_session_factory() as session:
@@ -96,7 +81,8 @@ class FriendshipService:
             await session.commit()
             await session.refresh(friendship)
 
-            return FriendshipOut.model_validate({**friendship.__dict__, "user": friendship.addressee})
+            # return FriendshipOut.model_validate({**friendship.__dict__, "user": friendship.addressee})
+            return await self._construct_friendship(friendship)
 
     async def delete_friendship(self, friendship_id: str) -> None:
         raise NotImplementedError()
@@ -116,3 +102,9 @@ class FriendshipService:
                 return friendship.status == FriendshipStatusEnum.accepted
 
             return False
+
+    async def _construct_friendship(self, friendship: Friendship) -> FriendshipOut:
+        return FriendshipOut.model_validate({
+            **friendship.__dict__,
+            "user": await self.user_service.set_presigned_url_to_user(friendship.addressee)
+        })

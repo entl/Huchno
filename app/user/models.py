@@ -7,13 +7,15 @@ from sqlalchemy.dialects.postgresql import TIMESTAMP, UUID, DATE
 from core.db.session import Base
 from core.config import settings
 
+from app.aws.service import AwsS3Service as s3
+
 
 class User(Base):
     """
         A model representing a user in the application.
 
         Attributes:
-            id_ (UUID): The unique identifier for the user.
+            id (UUID): The unique identifier for the user.
             username (str): The username of the user.
             email (str): The email address of the user.
             password (str): The hashed password of the user.
@@ -41,21 +43,7 @@ class User(Base):
     is_admin = Column(Boolean, server_default="False", nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False, onupdate=func.now())
+
     #
     # spotify_data = relationship("UserSpotifyData", back_populates="user",
     #                             lazy="selectin", uselist=False)
-    #
-    # def friends(self):
-    #     return select(Friendship, User) \
-    #         .join(User, Friendship.addressee_id == User.id_) \
-    #         .filter(and_(Friendship.requester_id == self.id_, Friendship.status == "accepted"))
-    #
-    # def sent_requests(self):
-    #     return select(Friendship, User) \
-    #         .join(User, Friendship.addressee_id == User.id_) \
-    #         .filter(and_(Friendship.requester_id == self.id_, Friendship.status == "sent"))
-    #
-    # def received_requests(self):
-    #     return select(Friendship, User) \
-    #         .join(User, Friendship.addressee_id == User.id_) \
-    #         .filter(and_(Friendship.requester_id == self.id_, Friendship.status == "pending"))
