@@ -111,7 +111,7 @@ class UserUpdate(BaseModel):
                                     description="The username of the user", min_length=4, max_length=128)
     fullname: Optional[str] = Field(default=None, min_length=1, max_length=128, description="The full name of the user")
     birthdate: Optional[date] = Field(default=None, description="The birthdate of the user")
-    profile_image: ProfileImageOut
+    profile_image: Optional[ProfileImageOut] = Field(default=None, description="The profile image of the user")
     is_active: Optional[bool] = Field(default=None, description="The user's active status")
     registration_date: Optional[date] = Field(default=None, description="The registration datetime of the user")
     last_login: Optional[datetime] = Field(default=None, description="The datetime of the user's last login")
