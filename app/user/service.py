@@ -8,7 +8,7 @@ from app.user.schemas import UserOut, UserCreate, UserUpdate, LoginResponse, Pro
 from app.user.models import User
 from core import exceptions
 
-from core.db.session import async_session_factory
+from core.db.session import async_session_factory, UnitOfWork
 from core.utils import password_helper
 from core.utils.token_helper import TokenHelper
 
@@ -20,43 +20,45 @@ class UserService:
 
     async def get_all_users(self) -> list[UserOut]:
         result = []
-        async with async_session_factory() as session:
-            users = await self.user_repository.find_all(session=session)
+        async with UnitOfWork(async_session_factory()) as uow:
+            users = await self.user_repository.find_all(session=uow.session)
 
-            for user in users:
-                user = await self.set_presigned_url_to_user(user)
-                result.append(UserOut.model_validate(user))
-            return result
+        for user in users:
+            user = await self.set_presigned_url_to_user(user)
+            result.append(UserOut.model_validate(user))
+        return result
 
     async def get_user_by_id(self, user_id: UUID4) -> Optional[UserOut]:
-        async with async_session_factory() as session:
-            user = await self.user_repository.find_by_id(session=session, user_id=user_id)
-            if not user:
-                return None
+        async with UnitOfWork(async_session_factory()) as uow:
+            user = await self.user_repository.find_by_id(session=uow.session, user_id=user_id)
 
-            user = await self.set_presigned_url_to_user(user)
+        if not user:
+            return None
 
-            return UserOut.model_validate(user)
+        user = await self.set_presigned_url_to_user(user)
+
+        return UserOut.model_validate(user)
 
     async def get_user_by_username(self, username: str) -> Optional[UserOut]:
-        async with async_session_factory() as session:
-            user = await self.user_repository.find_by_username(session=session, username=username)
-            if not user:
-                return None
+        async with UnitOfWork(async_session_factory()) as uow:
+            user = await self.user_repository.find_by_username(session=uow.session, username=username)
 
-            user = await self.set_presigned_url_to_user(user)
+        if not user:
+            return None
 
-            return UserOut.model_validate(user)
+        user = await self.set_presigned_url_to_user(user)
+
+        return UserOut.model_validate(user)
 
     async def get_user_by_email(self, email: str) -> Optional[UserOut]:
-        async with async_session_factory() as session:
-            user = await self.user_repository.find_by_email(session=session, email=email)
-            if not user:
-                return None
+        async with UnitOfWork(async_session_factory()) as uow:
+            user = await self.user_repository.find_by_email(session=uow.session, email=email)
+        if not user:
+            return None
 
-            user = await self.set_presigned_url_to_user(user)
+        user = await self.set_presigned_url_to_user(user)
 
-            return UserOut.model_validate(user) if user else None
+        return UserOut.model_validate(user)
 
     async def create_user(self, user: UserCreate) -> UserOut:
         if await self.get_user_by_username(user.username):
@@ -68,34 +70,36 @@ class UserService:
         hashed_password = password_helper.hash(user.password)
         user.password = hashed_password
 
-        async with async_session_factory() as session:
+        async with UnitOfWork(async_session_factory()) as uow:
+            filename = user.profile_image.filename
             user: User = User(**user.model_dump())
-            user = await self.user_repository.add(session=session, user=user)
+            user.profile_image = filename
+            user = await self.user_repository.add(session=uow.session, user=user)
 
-            user = await self.set_presigned_url_to_user(user)
+        user = await self.set_presigned_url_to_user(user)
 
-            return UserOut.model_validate(user)
+        return UserOut.model_validate(user)
 
     async def update_user(self, user: UserUpdate) -> UserOut:
         if not await self.get_user_by_id(user.id):
             raise exceptions.user.UserNotFoundException()
-        async with async_session_factory() as session:
+        async with UnitOfWork(async_session_factory()) as uow:
             new_values = user.model_dump(exclude_none=True, exclude_unset=True)
-            user_model = await self.user_repository.update(session=session, new_values=new_values, user_id=user.id)
+            user_model = await self.user_repository.update(session=uow.session, new_values=new_values, user_id=user.id)
 
-            user_model = await self.set_presigned_url_to_user(user_model)
+        user_model = await self.set_presigned_url_to_user(user_model)
 
-            return UserOut.model_validate(user_model)
+        return UserOut.model_validate(user_model)
 
     async def delete_user(self, user_id: str) -> None:
         if not await self.get_user_by_id(user_id):
             raise exceptions.user.UserNotFoundException()
-        async with async_session_factory() as session:
-            await self.user_repository.delete(session=session, user_id=user_id)
+        async with UnitOfWork(async_session_factory()) as uow:
+            await self.user_repository.delete(session=uow.session, user_id=user_id)
 
     async def login(self, email: str, password: str) -> LoginResponse:
-        async with async_session_factory() as session:
-            user = await self.user_repository.find_by_email(session=session, email=email)
+        async with UnitOfWork(async_session_factory()) as uow:
+            user = await self.user_repository.find_by_email(session=uow.session, email=email)
         if not user:
             raise exceptions.user.UserNotFoundException()
         if not password_helper.verify(password, user.password):
@@ -110,8 +114,8 @@ class UserService:
         return response
 
     async def is_admin(self, user_id: str) -> bool:
-        async with async_session_factory() as session:
-            user = await self.user_repository.find_by_id(session=session, user_id=user_id)
+        async with UnitOfWork(async_session_factory()) as uow:
+            user = await self.user_repository.find_by_id(session=uow.session, user_id=user_id)
         if not user:
             raise exceptions.user.UserNotFoundException()
         return user.is_admin
