@@ -82,14 +82,13 @@ async def create_user(user_service: Annotated[UserService, Depends()], user: Use
 
 
 @users_router.patch(
-    "/{user_id}",
+    "/",
     response_model=UserOut,
     status_code=status.HTTP_200_OK,
 )
 async def update_user(
         user_service: Annotated[UserService, Depends()],
         updated_user: UserUpdate,
-        user_id: UUID4,
         current_user: Annotated[CurrentUser, Depends(
             PermissionDependencyHTTP([IsAuthenticated, IsAdmin], all_required=False)
         )]
@@ -100,13 +99,12 @@ async def update_user(
     Args:
         user_service (UserService): User Service instance.
         updated_user (UserUpdate): User data to update.
-        user_id (str): The ID of the user to update.
         current_user (CurrentUser): The currently authenticated user.
 
     Returns:
         UserOut: Updated user data.
     """
-    if current_user.id == user_id or Permissions.IsAdmin in current_user.permissions:
+    if current_user.id == updated_user.id or Permissions.IsAdmin in current_user.permissions:
         return await user_service.update_user(updated_user)
     else:
         raise InsufficientPermissions()

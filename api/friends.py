@@ -7,12 +7,12 @@ from starlette import status
 from app.friends.service import FriendshipService
 from core.fastapi.dependencies.permission import PermissionDependencyHTTP, IsAuthenticated, IsAdmin
 from core.fastapi.schemas.current_user import CurrentUser
-from app.friends.schemas import FriendshipRequestIn
+from app.friends.schemas import FriendshipRequestIn, FriendshipOut, BaseFriendshipRequest
 
 friends_router = APIRouter(prefix="/friends", tags=["Friends"])
 
 
-@friends_router.get("/", status_code=status.HTTP_200_OK)
+@friends_router.get("/", status_code=status.HTTP_200_OK, response_model=list[FriendshipOut])
 async def get_all_friends(
         friendship_service: Annotated[FriendshipService, Depends()],
         current_user: Annotated[CurrentUser, Depends(
@@ -22,7 +22,7 @@ async def get_all_friends(
     return await friendship_service.get_friends(user_id=str(current_user.id))
 
 
-@friends_router.get("/requests/sent", status_code=status.HTTP_200_OK)
+@friends_router.get("/requests/sent", status_code=status.HTTP_200_OK, response_model=list[FriendshipOut])
 async def get_sent_friendship_requests(
         friendship_service: Annotated[FriendshipService, Depends()],
         current_user: Annotated[CurrentUser, Depends(
@@ -32,7 +32,7 @@ async def get_sent_friendship_requests(
     return await friendship_service.get_sent_friendship_requests(user_id=str(current_user.id))
 
 
-@friends_router.get("/requests/received", status_code=status.HTTP_200_OK)
+@friends_router.get("/requests/received", status_code=status.HTTP_200_OK, response_model=list[FriendshipOut])
 async def get_received_friendship_requests(
         friendship_service: Annotated[FriendshipService, Depends()],
         current_user: Annotated[CurrentUser, Depends(
@@ -42,7 +42,7 @@ async def get_received_friendship_requests(
     return await friendship_service.get_received_friendship_requests(user_id=str(current_user.id))
 
 
-@friends_router.post("/", status_code=status.HTTP_201_CREATED)
+@friends_router.post("/", status_code=status.HTTP_201_CREATED, response_model=FriendshipOut)
 async def send_friend_request(
         request: FriendshipRequestIn,
         friendship_service: Annotated[FriendshipService, Depends()],
@@ -57,7 +57,7 @@ async def send_friend_request(
     return request
 
 
-@friends_router.patch("/{friendship_id}/accept", status_code=status.HTTP_200_OK)
+@friends_router.patch("/{friendship_id}/accept", status_code=status.HTTP_200_OK, response_model=FriendshipOut)
 async def accept_friend_request(
         friendship_id: UUID4,
         friendship_service: Annotated[FriendshipService, Depends()],
